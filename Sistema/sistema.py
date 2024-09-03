@@ -3,7 +3,7 @@ import tkinter
 
 conexao = conector.connect(
         host="localhost",
-        dbname="Shantala",
+        dbname="shantala",
         user="postgres",
         password="12345",
         port="5432",
@@ -11,7 +11,7 @@ conexao = conector.connect(
     )
 cursor = conexao.cursor()
 
-comando = '''INSERT INTO professores (idprofessor,nomeprofessor) VALUES ('1','Julio Henrique Sosa');''' 
+comando = '''INSERT INTO professores (nomeprofessor) VALUES ('Gloria Duarte Almeida ');''' 
 cursor.execute(comando)
 
 conexao.commit()
