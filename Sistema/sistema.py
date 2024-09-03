@@ -1,15 +1,52 @@
+from turtle import right
 import psycopg2 as conector
 import tkinter as tk
 
-conexao = conector.connect(
-        host="localhost",
-        dbname="shantala",
-        user="postgres",
-        password="12345",
-        port="5432",
-        options='-c client_encoding=UTF8'
-    )
-cursor = conexao.cursor()
+global dados
+def conectarBanco():   
+   global conexao
+   conexao = conector.connect(
+            host="localhost",
+            dbname="shantala",
+            user="postgres",
+            password="12345",
+            port="5432",
+            options='-c client_encoding=UTF8'
+        )
+      
+
+def cadastrarProfessor():
+    global nome
+    cadastrarprofessores = tk.Tk()
+    cadastrarprofessores.resizable(False, False)
+    cadastrarprofessores.title("Sistema Escola Shantala")
+    cadastrarprofessores.geometry('600x300')
+    tk.Label(cadastrarprofessores,text="Cadastrar Professores: ").grid(row=2, column=0)
+    tk.Label(cadastrarprofessores,text="Nome Professor").grid(row=3,column=0)
+    nome = tk.Entry(cadastrarprofessores)
+    nome.grid(row=3, column=1)
+    
+
+    def cadastrarprofessor():
+              
+        
+        conectarBanco()
+        
+        cursor = conexao.cursor() 
+        comando = """INSERT INTO professores ("nomeprofessor") VALUES (%s)"""
+        dados = (cadastrarprofessores)
+        cursor.execute(comando,dados)
+        conexao.commit() 
+
+        cursor.close()
+        conexao.close()    
+
+             
+
+    tk.Button(cadastrarprofessores, text='Cadatrar',command=cadastrarprofessor).grid(row=5,column=0,sticky=tk.W,pady=4)
+    tk.Button(cadastrarprofessores, text='Sair',command=cadastrarprofessores.destroy).grid(row=5,column=1,sticky=tk.W,pady=4)
+
+    cadastrarprofessores.mainloop()
 
 principal = tk.Tk()
 principal.resizable(False, False)
@@ -18,19 +55,8 @@ principal.geometry('600x300')
 tk.Button(principal, text='Cadastrar Aluno',command=principal.quit).grid(row=1,column=0,sticky=tk.W,pady=4)
 tk.Button(principal, text='Cadastrar Curso',command=principal.quit).grid(row=1,column=1,sticky=tk.W,pady=4)
 tk.Button(principal, text='Cadastrar Turma',command=principal.quit).grid(row=1,column=2,sticky=tk.W,pady=4)
-tk.Button(principal, text='Cadastrar Professor',command=principal.quit).grid(row=1,column=3,sticky=tk.W,pady=4)
+tk.Button(principal, text='Cadastrar Professor',command=cadastrarProfessor).grid(row=1,column=3,sticky=tk.W,pady=4)
 tk.Button(principal, text='Cadastrar Aluno na turma',command=principal.quit).grid(row=1,column=4,sticky=tk.W,pady=4)
-tk.Label(principal,text="Cadastrar: ").grid(row=2, column=0)
-tk.Label(principal,text="Nome:").grid(row=3,column=0)
-nome = tk.Entry(principal)
-nome.grid(row=3, column=0)
-tk.Button(principal, text='Sair',command=principal.quit).grid(row=5,column=1,sticky=tk.W,pady=4)
+tk.Button(principal, text='Sair',command=principal.quit).grid(row=1,column=5,sticky=tk.W,pady=4)
+
 principal.mainloop()
-
-comando = '''INSERT INTO professores (nomeprofessor) VALUES ('Gloria Duarte Almeida ');''' 
-cursor.execute(comando)
-
-conexao.commit()
-
-cursor.close()
-conexao.close()
