@@ -2,7 +2,7 @@ from turtle import right
 import psycopg2 as conector
 import tkinter as tk
 
-global dados
+
 def conectarBanco():   
    global conexao
    conexao = conector.connect(
@@ -15,8 +15,8 @@ def conectarBanco():
         )
       
 
-def cadastrarProfessor():
-    global nome
+def cadastrarProfessores():
+    
     cadastrarprofessores = tk.Tk()
     cadastrarprofessores.resizable(False, False)
     cadastrarprofessores.title("Sistema Escola Shantala")
@@ -25,19 +25,18 @@ def cadastrarProfessor():
     tk.Label(cadastrarprofessores,text="Nome Professor").grid(row=3,column=0)
     nome = tk.Entry(cadastrarprofessores)
     nome.grid(row=3, column=1)
+   
     
 
-    def cadastrarprofessor():
-              
-        
+    def cadastrarprofessor():              
+        dados = nome
         conectarBanco()
         
         cursor = conexao.cursor() 
-        comando = """INSERT INTO professores ("nomeprofessor") VALUES (%s)"""
-        dados = (cadastrarprofessores)
-        cursor.execute(comando,dados)
+        comando = """INSERT INTO "professores" ("nomeprofessor") VALUES (%s)"""
+             
+        cursor.execute(comando, dados)
         conexao.commit() 
-
         cursor.close()
         conexao.close()    
 
@@ -55,7 +54,7 @@ principal.geometry('600x300')
 tk.Button(principal, text='Cadastrar Aluno',command=principal.quit).grid(row=1,column=0,sticky=tk.W,pady=4)
 tk.Button(principal, text='Cadastrar Curso',command=principal.quit).grid(row=1,column=1,sticky=tk.W,pady=4)
 tk.Button(principal, text='Cadastrar Turma',command=principal.quit).grid(row=1,column=2,sticky=tk.W,pady=4)
-tk.Button(principal, text='Cadastrar Professor',command=cadastrarProfessor).grid(row=1,column=3,sticky=tk.W,pady=4)
+tk.Button(principal, text='Cadastrar Professor',command=cadastrarProfessores).grid(row=1,column=3,sticky=tk.W,pady=4)
 tk.Button(principal, text='Cadastrar Aluno na turma',command=principal.quit).grid(row=1,column=4,sticky=tk.W,pady=4)
 tk.Button(principal, text='Sair',command=principal.quit).grid(row=1,column=5,sticky=tk.W,pady=4)
 
