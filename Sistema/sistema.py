@@ -28,8 +28,10 @@ def cadastrarProfessores():
    
     
 
-    def cadastrarprofessor():              
-        dados = nome
+    def cadastrarprofessor():          
+        
+        nomeProfessor = nome.get()
+        dados = (nomeProfessor ,)
         conectarBanco()
         
         cursor = conexao.cursor() 
@@ -46,6 +48,8 @@ def cadastrarProfessores():
     tk.Button(cadastrarprofessores, text='Sair',command=cadastrarprofessores.destroy).grid(row=5,column=1,sticky=tk.W,pady=4)
 
     cadastrarprofessores.mainloop()
+
+
 
 principal = tk.Tk()
 principal.resizable(False, False)
