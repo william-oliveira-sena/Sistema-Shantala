@@ -14,7 +14,24 @@ def conectarBanco():
             port="5432",
             options='-c client_encoding=UTF8'
         )
-      
+def msg(alerta):
+        
+            screenWidth, screenHeight = pyautogui.size()
+            currentMouseX, currentMouseY = pyautogui.position()
+            pyautogui.moveTo(100, 150)
+            pyautogui.click()
+            pyautogui.click(100, 200)
+            pyautogui.move(0, 10)
+            pyautogui.doubleClick()
+            pyautogui.moveTo(500, 500, duration=2, tween=pyautogui.easeInOutQuad)
+            pyautogui.write('Cadastro Realizado com sucesso!', interval=0.25)
+            pyautogui.press('esc')
+            pyautogui.keyDown('shift')
+            pyautogui.press(['left', 'left', 'left', 'left'])
+            pyautogui.keyUp('shift')
+            pyautogui.hotkey('ctrl', 'c')
+            pyautogui.alert(alerta) 
+                 
 
 def cadastrarProfessores():
     
@@ -43,22 +60,9 @@ def cadastrarProfessores():
         count = cursor.rowcount
 
         if count > 0:
-        
-            screenWidth, screenHeight = pyautogui.size()
-            currentMouseX, currentMouseY = pyautogui.position()
-            pyautogui.moveTo(100, 150)
-            pyautogui.click()
-            pyautogui.click(100, 200)
-            pyautogui.move(0, 10)
-            pyautogui.doubleClick()
-            pyautogui.moveTo(500, 500, duration=2, tween=pyautogui.easeInOutQuad)
-            pyautogui.write('Cadastro Realizado com sucesso!', interval=0.25)
-            pyautogui.press('esc')
-            pyautogui.keyDown('shift')
-            pyautogui.press(['left', 'left', 'left', 'left'])
-            pyautogui.keyUp('shift')
-            pyautogui.hotkey('ctrl', 'c')
-            pyautogui.alert('Cadastro Realizado com sucesso!') 
+            alerta=("Cadastro Realizado com Sucesso!")
+            msg(alerta)
+            cadastrarprofessores.destroy()
 
         cursor.close()
         conexao.close()    
@@ -133,7 +137,10 @@ def cadastrarAluno():
         cursor.execute(comando, dados)
         conexao.commit() 
         count = cursor.rowcount
-       
+        if count > 0:
+            alerta=("Cadastro Realizado com Sucesso!")
+            msg(alerta)
+            cadastrarAluno.destroy()
 
         cursor.close()
         conexao.close()    
