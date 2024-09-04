@@ -152,16 +152,148 @@ def cadastrarAluno():
 
     cadastrarAluno.mainloop()
 
+    #Turmas
+
+def cadastrarTurma():
+    
+    cadastrarTurmas = tk.Tk()
+    cadastrarTurmas.resizable(False, False)
+    cadastrarTurmas.title("Sistema Escola Shantala")
+    cadastrarTurmas.geometry('600x300')
+    tk.Label(cadastrarTurmas,text="Cadastrar Turma: ").grid(row=2, column=0)
+    tk.Label(cadastrarTurmas,text="Curso").grid(row=3,column=0)
+    tk.Label(cadastrarTurmas,text="Professor").grid(row=4,column=0)
+    tk.Label(cadastrarTurmas,text="Frequência").grid(row=5,column=0)
+    tk.Label(cadastrarTurmas,text="Data inicio").grid(row=6,column=0)
+   
+    
+    curso = tk.Entry(cadastrarTurmas)
+    curso.grid(row=3, column=1)
 
 
+    def cadastrarturma():              
+        
+        conectarBanco()
+        
+        cursor = conexao.cursor() 
+        comando = """INSERT INTO "turmas" ("nomealuno","endereco","numero","complemento") VALUES (%s)"""
+             
+        cursor.execute(comando)
+        conexao.commit() 
+        count = cursor.rowcount
+        if count > 0:
+            alerta=("Cadastro Realizado com Sucesso!")
+            msg(alerta)
+            cadastrarTurmas.destroy()
+
+        cursor.close()
+        conexao.close()    
+
+             
+
+    tk.Button(cadastrarTurmas, text='Cadastrar',command=cadastrarturma).grid(row=10,column=0,sticky=tk.W,pady=4)
+    tk.Button(cadastrarTurmas, text='Sair',command=cadastrarTurmas.destroy).grid(row=10,column=1,sticky=tk.W,pady=4)
+
+    cadastrarTurmas.mainloop()
+
+#cursos
+
+def cadstrarCurso():
+    
+    cadstrarCurso = tk.Tk()
+    cadstrarCurso.resizable(False, False)
+    cadstrarCurso.title("Sistema Escola Shantala")
+    cadstrarCurso.geometry('600x300')
+    tk.Label(cadstrarCurso,text="Cadastrar curso: ").grid(row=2, column=0)
+    tk.Label(cadstrarCurso,text="Nome Curso ").grid(row=3, column=0)
+    tk.Label(cadstrarCurso,text="Duração").grid(row=4,column=0)
+    
+   
+    
+    curso = tk.Entry(cadstrarCurso)
+    curso.grid(row=3, column=1)
+    duracao = tk.Entry(cadstrarCurso)
+    duracao.grid(row=4, column=1)
+
+
+    def cadastrarcurso():              
+        
+        conectarBanco()
+        
+        cursor = conexao.cursor() 
+        comando = """INSERT INTO "turmas" ("nomealuno","endereco","numero","complemento") VALUES (%s)"""
+             
+        cursor.execute(comando)
+        conexao.commit() 
+        count = cursor.rowcount
+        if count > 0:
+            alerta=("Cadastro Realizado com Sucesso!")
+            msg(alerta)
+            cadstrarCurso.destroy()
+
+        cursor.close()
+        conexao.close()    
+
+             
+
+    tk.Button(cadstrarCurso, text='Cadastrar',command=cadastrarcurso).grid(row=6,column=0,sticky=tk.W,pady=4)
+    tk.Button(cadstrarCurso, text='Sair',command=cadstrarCurso.destroy).grid(row=6,column=1,sticky=tk.W,pady=4)
+
+    cadstrarCurso.mainloop()
+
+#aluno\turma
+
+
+def cadastrarAlunoTurma():
+    
+    cadastrarAlunoTurma = tk.Tk()
+    cadastrarAlunoTurma.resizable(False, False)
+    cadastrarAlunoTurma.title("Sistema Escola Shantala")
+    cadastrarAlunoTurma.geometry('600x300')
+    tk.Label(cadastrarAlunoTurma,text="Cadastrar Turma do Aluno: ").grid(row=2, column=0)
+    tk.Label(cadastrarAlunoTurma,text="Nome Curso ").grid(row=3, column=0)
+    tk.Label(cadastrarAlunoTurma,text="Duração").grid(row=4,column=0)
+    
+   
+    
+    curso = tk.Entry(cadastrarAlunoTurma)
+    curso.grid(row=3, column=1)
+    duracao = tk.Entry(cadastrarAlunoTurma)
+    duracao.grid(row=4, column=1)
+
+
+    def cadastraralunoturma():              
+        
+        conectarBanco()
+        
+        cursor = conexao.cursor() 
+        comando = """INSERT INTO "turmas" ("nomealuno","endereco","numero","complemento") VALUES (%s)"""
+             
+        cursor.execute(comando)
+        conexao.commit() 
+        count = cursor.rowcount
+        if count > 0:
+            alerta=("Cadastro Realizado com Sucesso!")
+            msg(alerta)
+            cadastrarAlunoTurma.destroy()
+
+        cursor.close()
+        conexao.close()    
+
+             
+
+    tk.Button(cadastrarAlunoTurma, text='Cadastrar',command=cadastraralunoturma).grid(row=6,column=0,sticky=tk.W,pady=4)
+    tk.Button(cadastrarAlunoTurma, text='Sair',command=cadastrarAlunoTurma.destroy).grid(row=6,column=1,sticky=tk.W,pady=4)
+
+    cadastrarAlunoTurma.mainloop()
 
 principal = tk.Tk()
 principal.resizable(False, False)
 principal.title("Sistema Escola Shantala")
 principal.geometry('600x300')
 tk.Button(principal, text='Cadastrar Aluno',command=cadastrarAluno).grid(row=1,column=0,sticky=tk.W,pady=4)
-tk.Button(principal, text='Cadastrar Curso',command=principal.quit).grid(row=1,column=1,sticky=tk.W,pady=4)
-tk.Button(principal, text='Cadastrar Turma',command=principal.quit).grid(row=1,column=2,sticky=tk.W,pady=4)
+tk.Button(principal, text='Cadastrar Curso',command=cadstrarCurso).grid(row=1,column=1,sticky=tk.W,pady=4)
+tk.Button(principal, text='Cadastrar Turma',command=cadastrarTurma).grid(row=1,column=2,sticky=tk.W,pady=4)
 tk.Button(principal, text='Cadastrar Professor',command=cadastrarProfessores).grid(row=1,column=3,sticky=tk.W,pady=4)
 tk.Button(principal, text='Cadastrar Aluno na turma',command=principal.quit).grid(row=1,column=4,sticky=tk.W,pady=4)
 tk.Button(principal, text='Sair',command=principal.quit).grid(row=1,column=5,sticky=tk.W,pady=4)
