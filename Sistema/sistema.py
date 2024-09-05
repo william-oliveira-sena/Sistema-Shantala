@@ -1,6 +1,7 @@
 from turtle import right
 import psycopg2 as conector
 import tkinter as tk
+from tkinter import ttk
 import pyautogui
 
 
@@ -31,7 +32,21 @@ def msg(alerta):
             pyautogui.keyUp('shift')
             pyautogui.hotkey('ctrl', 'c')
             pyautogui.alert(alerta) 
-                 
+
+def pesquisar(comandopesq):
+            conectarBanco()
+        
+            cursor = conexao.cursor() 
+            comando = comandopesq
+             
+            cursor.execute(comando)
+            conexao.commit()
+            registros = cursor.fetchall     
+                
+            
+            return registros 
+
+          
 
 def cadastrarProfessores():
     
@@ -166,9 +181,19 @@ def cadastrarTurma():
     tk.Label(cadastrarTurmas,text="Frequência").grid(row=5,column=0)
     tk.Label(cadastrarTurmas,text="Data inicio").grid(row=6,column=0)
    
+    comandopesq = """select nomeCurso from cursos"""
+    cursos = pesquisar(comandopesq)
+    
+    
     
     curso = tk.Entry(cadastrarTurmas)
     curso.grid(row=3, column=1)
+    n = tk.StringVar()
+    escolha = ttk.Combobox(cadastrarTurmas, width = 27, textvariable = n)
+    # Adição de itens no Combobox
+    escolha['values'] = (cursos)
+    escolha.grid(column = 1, row = 3)
+    escolha.current()
 
 
     def cadastrarturma():              
