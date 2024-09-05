@@ -41,12 +41,22 @@ def pesquisar(comandopesq):
              
             cursor.execute(comando)
             conexao.commit()
-            registros = cursor.fetchall     
-                
+            registros = cursor.fetchall()                 
             
-            return registros 
-
-          
+            return registros
+    
+def pesquisarid(comandopesq,nome):
+            conectarBanco()
+        
+            cursor = conexao.cursor() 
+            comando = comandopesq
+            dado = str(nome)
+             
+            cursor.execute(comando,dado)
+            conexao.commit()
+            registros = cursor.fetchall()                 
+            
+            return registros        
 
 def cadastrarProfessores():
     
@@ -58,8 +68,7 @@ def cadastrarProfessores():
     tk.Label(cadastrarprofessores,text="Nome Professor").grid(row=3,column=0)
     nome = tk.Entry(cadastrarprofessores)
     nome.grid(row=3, column=1)
-   
-    
+
 
     def cadastrarprofessor():          
         
@@ -78,6 +87,8 @@ def cadastrarProfessores():
             alerta=("Cadastro Realizado com Sucesso!")
             msg(alerta)
             cadastrarprofessores.destroy()
+        
+        
 
         cursor.close()
         conexao.close()    
@@ -181,29 +192,61 @@ def cadastrarTurma():
     tk.Label(cadastrarTurmas,text="Frequência").grid(row=5,column=0)
     tk.Label(cadastrarTurmas,text="Data inicio").grid(row=6,column=0)
    
-    comandopesq = """select nomeCurso from cursos"""
-    cursos = pesquisar(comandopesq)
+    comandopesqcursos = """select nomecurso from cursos"""
+    cursos = pesquisar(comandopesqcursos) 
+    comandopesqprof = """select nomeprofessor from professores"""
+    prof = pesquisar(comandopesqprof) 
+    comandopesqfreq = """select nomedias from frequencia"""
+    frequencia = pesquisar(comandopesqfreq) 
     
     
-    
-    curso = tk.Entry(cadastrarTurmas)
-    curso.grid(row=3, column=1)
-    n = tk.StringVar()
-    escolha = ttk.Combobox(cadastrarTurmas, width = 27, textvariable = n)
+    ncurso = tk.StringVar()
+    escolhacurso = ttk.Combobox(cadastrarTurmas, width = 27, textvariable = ncurso)
     # Adição de itens no Combobox
-    escolha['values'] = (cursos)
-    escolha.grid(column = 1, row = 3)
-    escolha.current()
+    escolhacurso['values'] = (cursos)
+    escolhacurso.grid(column = 1, row = 3)
+    escolhacurso.current()
+
+    nprofe = tk.StringVar()
+    escolhaprofessor = ttk.Combobox(cadastrarTurmas, width = 27, textvariable = nprofe)
+    # Adição de itens no Combobox
+    escolhaprofessor['values'] = (prof)
+    escolhaprofessor.grid(column = 1, row = 4)
+    escolhaprofessor.current()
+
+    nfreq = tk.StringVar()
+    escolhafrequencia = ttk.Combobox(cadastrarTurmas, width = 27, textvariable = nfreq)
+    # Adição de itens no Combobox
+    escolhafrequencia['values'] = (frequencia)
+    escolhafrequencia.grid(column = 1, row = 5)
+    escolhafrequencia.current()
+    datainicio = tk.Entry(cadastrarTurmas)
+    datainicio.grid(row=6, column=1)
 
 
     def cadastrarturma():              
+        nomec = escolhacurso.get()
+        nomeCurso = (nomec ,)
+        nomeP = escolhaprofessor.get()
+        nomeProf = (nomeP ,)
+        nomef = escolhafrequencia.get()
+        nomefreque = (nomef ,)
+        inicio = datainicio.get()
         
         conectarBanco()
-        
+        comandopesquisaidcursos = ("select idcurso from cursos where nomecurso = %s ")
+        idcurso = int(pesquisarid(comandopesquisaidcursos,nomeCurso))
+
+        comandopesquisaidprof = """select idprofessores from professores where nomeprofessor = %s """
+        idprof = int(pesquisarid(comandopesquisaidprof,nomeProf))
+
+        comandopesquisaidfreq = """select idfrequencia from frequencia where nomedias = %s """
+        idfreq = int(pesquisarid(comandopesquisaidfreq,nomefreque))
+
         cursor = conexao.cursor() 
-        comando = """INSERT INTO "turmas" ("nomealuno","endereco","numero","complemento") VALUES (%s)"""
+        comando = """INSERT INTO "turmas" ("idcurso","idprofessor","idfrequencia","datainicio") VALUES (%s,%s,%s,%s)"""
              
-        cursor.execute(comando)
+        cursor.execute(comando,idcurso,idprof,idfreq,inicio, )
         conexao.commit() 
         count = cursor.rowcount
         if count > 0:
