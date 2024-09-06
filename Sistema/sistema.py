@@ -220,18 +220,18 @@ def cadastrarTurma():
     escolhafrequencia['values'] = (frequencia)
     escolhafrequencia.grid(column = 1, row = 5)
     escolhafrequencia.current()
-    
+
     datainicio = tk.Entry(cadastrarTurmas)
     datainicio.grid(row=6, column=1)
 
 
     def cadastrarturma():              
         nomec = escolhacurso.get()
-        nomeCurso = (nomec ,)
+        nomeCurso = (nomec)
         nomeP = escolhaprofessor.get()
-        nomeProf = (nomeP ,)
+        nomeProf = (nomeP)
         nomef = escolhafrequencia.get()
-        nomefreque = (nomef ,)
+        nomefreque = (nomef)
         inicio = datainicio.get()
         
         conectarBanco()
