@@ -50,9 +50,9 @@ def pesquisarid(comandopesq,nome):
         
             cursor = conexao.cursor() 
             comando = comandopesq
-            dado = str(nome)
+            dado = nome
              
-            cursor.execute(comando,dado)
+            cursor.execute(comando,dado, )
             conexao.commit()
             registros = cursor.fetchall()                 
             
@@ -220,6 +220,7 @@ def cadastrarTurma():
     escolhafrequencia['values'] = (frequencia)
     escolhafrequencia.grid(column = 1, row = 5)
     escolhafrequencia.current()
+    
     datainicio = tk.Entry(cadastrarTurmas)
     datainicio.grid(row=6, column=1)
 
@@ -234,19 +235,24 @@ def cadastrarTurma():
         inicio = datainicio.get()
         
         conectarBanco()
-        comandopesquisaidcursos = ("select idcurso from cursos where nomecurso = %s ")
-        idcurso = int(pesquisarid(comandopesquisaidcursos,nomeCurso))
+        comandopesquisaidcursos = """select idcurso from cursos where nomecurso like %s """
+        
+        resultcurso = pesquisarid(comandopesquisaidcursos,nomeCurso)
+        idcurso = resultcurso[0]
 
-        comandopesquisaidprof = """select idprofessores from professores where nomeprofessor = %s """
-        idprof = int(pesquisarid(comandopesquisaidprof,nomeProf))
+        comandopesquisaidprof = """select idprofessores from professores where nomeprofessor like %s """
+        resultprof = pesquisarid(comandopesquisaidprof,nomeProf)
+        idprof = resultprof[0]
 
-        comandopesquisaidfreq = """select idfrequencia from frequencia where nomedias = %s """
-        idfreq = int(pesquisarid(comandopesquisaidfreq,nomefreque))
+        comandopesquisaidfreq = """select idfrequencia from frequencia where nomedias like %s """
+        resultfreq = pesquisarid(comandopesquisaidfreq,nomefreque)
+        idfreq = resultfreq[0]
 
         cursor = conexao.cursor() 
         comando = """INSERT INTO "turmas" ("idcurso","idprofessor","idfrequencia","datainicio") VALUES (%s,%s,%s,%s)"""
-             
-        cursor.execute(comando,idcurso,idprof,idfreq,inicio, )
+
+        dados = (idcurso,idprof,idfreq,inicio, )     
+        cursor.execute(comando, dados)
         conexao.commit() 
         count = cursor.rowcount
         if count > 0:
