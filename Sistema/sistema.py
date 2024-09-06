@@ -15,7 +15,7 @@ def conectarBanco():
         port="5432",
         options='-c client_encoding=UTF8'
     )
-
+#função de mensagem na tela, recebe o texto que deve ser apresentado
 def msg(alerta):
     screenWidth, screenHeight = pyautogui.size()
     currentMouseX, currentMouseY = pyautogui.position()
@@ -33,6 +33,7 @@ def msg(alerta):
     pyautogui.hotkey('ctrl', 'c')
     pyautogui.alert(alerta)
 
+#função para pesquisar dados para os campos select
 def pesquisar(comandopesq):
     conectarBanco()
     cursor = conexao.cursor() 
@@ -43,6 +44,7 @@ def pesquisar(comandopesq):
     conexao.close()
     return registros
 
+#função pesquisar o id com o nome 
 def pesquisarid(comandopesq, nome):
     conectarBanco()
     cursor = conexao.cursor()
@@ -50,8 +52,9 @@ def pesquisarid(comandopesq, nome):
     registros = cursor.fetchall()
     cursor.close()
     conexao.close()
-    return registros        
-
+    return registros  
+      
+#função cadastrar professores
 def cadastrarProfessores():
     cadastrarprofessores = tk.Tk()
     cadastrarprofessores.resizable(False, False)
@@ -210,21 +213,24 @@ def cadastrarTurma():
         comandopesquisaidcursos = """SELECT idcurso FROM cursos WHERE nomecurso LIKE %s"""
         resultcurso = pesquisarid(comandopesquisaidcursos, nomeCurso)
         if len(resultcurso) == 0:
-            msg("Curso não encontrado")
+            alertamsg="Curso não encontrado"
+            msg(alertamsg)
             return
         idcurso = resultcurso[0]
 
         comandopesquisaidprof = """SELECT idprofessores FROM professores WHERE nomeprofessor LIKE %s"""
         resultprof = pesquisarid(comandopesquisaidprof, nomeProf)
         if len(resultprof) == 0:
-            msg("Professor não encontrado")
+            alertamsg = "Professor não encontrado"
+            msg(alertamsg)
             return
         idprof = resultprof[0]
 
         comandopesquisaidfreq = """SELECT idfrequencia FROM frequencia WHERE nomedias LIKE %s"""
         resultfreq = pesquisarid(comandopesquisaidfreq, nomefreque)
         if len(resultfreq) == 0:
-            msg("Frequência não encontrada")
+            alertamsg = "Frequência não encontrada"
+            msg(alertamsg)
             return
         idfreq = resultfreq[0]
 
