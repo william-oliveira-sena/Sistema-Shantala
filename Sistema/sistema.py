@@ -40,8 +40,6 @@ def pesquisar(comandopesq):
     comando = comandopesq
     cursor.execute(comando)
     registros = cursor.fetchall()
-    cursor.close()
-    conexao.close()
     return registros
 
 #função pesquisar o id com o nome 
@@ -50,9 +48,10 @@ def pesquisarid(comandopesq, nome):
     cursor = conexao.cursor()
     cursor.execute(comandopesq, nome)
     registros = cursor.fetchall()
-    cursor.close()
-    conexao.close()
     return registros  
+
+
+
       
 #função cadastrar professores
 def cadastrarProfessores():
@@ -183,12 +182,15 @@ def cadastrarTurma():
     escolhacurso.grid(column=1, row=3)
     escolhacurso.current()
 
+    prof = tuple(p[0].strip("''") for p in prof)
+    print(frequencia)
     nprofe = tk.StringVar()
     escolhaprofessor = ttk.Combobox(cadastrarTurmas, width=27, textvariable=nprofe)
     escolhaprofessor['values'] = prof
     escolhaprofessor.grid(column=1, row=4)
     escolhaprofessor.current()
 
+    frequencia = tuple(f[0].strip("''") for f in frequencia)
     nfreq = tk.StringVar()
     escolhafrequencia = ttk.Combobox(cadastrarTurmas, width=27, textvariable=nfreq)
     escolhafrequencia['values'] = frequencia
@@ -208,6 +210,7 @@ def cadastrarTurma():
         inicio = datainicio.get()
 
         conectarBanco()
+        cursor = conexao.cursor()
 
         # Pesquisando IDs
         comandopesquisaidcursos = """SELECT idcurso FROM cursos WHERE nomecurso LIKE %s"""
@@ -296,19 +299,41 @@ def cadastrarAlunoTurma():
     cadastrarAlunoTurma.title("Sistema Escola Shantala")
     cadastrarAlunoTurma.geometry('600x300')
     tk.Label(cadastrarAlunoTurma, text="Cadastrar Turma do Aluno: ").grid(row=2, column=0)
-    tk.Label(cadastrarAlunoTurma, text="Nome Curso ").grid(row=3, column=0)
-    tk.Label(cadastrarAlunoTurma, text="Duração").grid(row=4, column=0)
+    tk.Label(cadastrarAlunoTurma, text="ID Turma ").grid(row=3, column=0)
+    tk.Label(cadastrarAlunoTurma, text="Nome Aluno").grid(row=4, column=0)
 
-    curso = tk.Entry(cadastrarAlunoTurma)
-    curso.grid(row=3, column=1)
-    duracao = tk.Entry(cadastrarAlunoTurma)
-    duracao.grid(row=4, column=1)
+    idTurma = tk.Entry(cadastrarAlunoTurma)
+    idTurma.grid(row=3, column=1)
+
+    comandopesqcursos = """SELECT nomealuno FROM alunos"""
+    alunos = pesquisar(comandopesqcursos)
+
+    alunos = tuple(a[0].strip("''") for a in alunos)
+    naluno = tk.StringVar()
+    escolheAlunoTurma = ttk.Combobox(cadastrarAlunoTurma, width=27, textvariable=naluno)
+    escolheAlunoTurma['values'] = alunos
+    escolheAlunoTurma.grid(column=1, row=4)
+    escolheAlunoTurma.current()
+
+    
 
     def cadastraralunoturma():              
         conectarBanco()
         cursor = conexao.cursor()
-        comando = """INSERT INTO "turmas" ("nomealuno", "endereco", "numero", "complemento") VALUES (%s, %s, %s, %s)"""
-        dados = (curso.get(), duracao.get())
+        idturma = idTurma.get()
+        nomealuno = escolheAlunoTurma.get()
+        nomea = (nomealuno,)
+         # Pesquisando IDs
+        comandopesquisaidaluno = """SELECT idaluno FROM alunos WHERE nomealuno LIKE %s"""
+        resultAluno = pesquisarid(comandopesquisaidaluno, nomea)
+        if len(resultAluno) == 0:
+            alertamsg="Aluno não encontrado"
+            msg(alertamsg)
+            return 
+        idaluno = resultAluno[0]
+
+        comando = """INSERT INTO "alunoturmas" ("idturma", "idaluno") VALUES (%s, %s)"""
+        dados = (idturma, idaluno)
         cursor.execute(comando, dados)
         conexao.commit()
         count = cursor.rowcount
@@ -330,11 +355,11 @@ principal = tk.Tk()
 principal.resizable(False, False)
 principal.title("Sistema Escola Shantala")
 principal.geometry('600x300')
-tk.Button(principal, text='Cadastrar Aluno', command=cadastrarAluno).grid(row=1, column=0, sticky=tk.W, pady=4)
-tk.Button(principal, text='Cadastrar Curso', command=cadstrarCurso).grid(row=1, column=1, sticky=tk.W, pady=4)
-tk.Button(principal, text='Cadastrar Turma', command=cadastrarTurma).grid(row=1, column=2, sticky=tk.W, pady=4)
-tk.Button(principal, text='Cadastrar Professor', command=cadastrarProfessores).grid(row=1, column=3, sticky=tk.W, pady=4)
-tk.Button(principal, text='Cadastrar Aluno na turma', command=cadastrarAlunoTurma).grid(row=1, column=4, sticky=tk.W, pady=4)
+tk.Button(principal, text='Alunos', command=cadastrarAluno).grid(row=1, column=0, sticky=tk.W, pady=4)
+tk.Button(principal, text='Cursos', command=cadstrarCurso).grid(row=1, column=1, sticky=tk.W, pady=4)
+tk.Button(principal, text='Turmas', command=cadastrarTurma).grid(row=1, column=2, sticky=tk.W, pady=4)
+tk.Button(principal, text='Professores', command=cadastrarProfessores).grid(row=1, column=3, sticky=tk.W, pady=4)
+tk.Button(principal, text='Alunos na turma', command=cadastrarAlunoTurma).grid(row=1, column=4, sticky=tk.W, pady=4)
 tk.Button(principal, text='Sair', command=principal.quit).grid(row=1, column=5, sticky=tk.W, pady=4)
 
 principal.mainloop()
