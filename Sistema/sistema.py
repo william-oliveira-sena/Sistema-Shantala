@@ -49,9 +49,6 @@ def pesquisarid(comandopesq, nome):
     cursor.execute(comandopesq, nome)
     registros = cursor.fetchall()
     return registros  
-
-
-
       
 #função cadastrar professores
 def cadastrarProfessores():
@@ -86,6 +83,72 @@ def cadastrarProfessores():
     tk.Button(cadastrarprofessores, text='Sair', command=cadastrarprofessores.destroy).grid(row=5, column=1, sticky=tk.W, pady=4)
 
     cadastrarprofessores.mainloop()
+def editarProfessores():
+    print ("editando")
+
+def on_item_selected(event):
+    selected_item = treeview.selection()
+    if selected_item:
+        item = treeview.item(selected_item)
+        item_text = item['values']
+        print("Selecionado:", item_text)
+
+def professores():
+      #tk.Button(editarprofessor, text='Editar', command=editarprofessor.destroy).grid(row=14, column=1, sticky=tk.W, pady=4)
+    global treeview
+
+    root=tk.Tk()
+    root.title("Pesquisa Professores")
+
+    root.geometry("800x600")
+
+    width = root.winfo_width()
+    height = root.winfo_height()
+
+    frame = tk.Frame(root)
+    frame.pack(side="right", fill="both", expand=True)
+
+    vsb = tk.Scrollbar(frame, orient="vertical")
+    vsb.pack(side='right', fill='y')
+
+    hsb = tk.Scrollbar(frame, orient="horizontal")
+    hsb.pack(side='bottom', fill='x')
+
+    # Criação do Treeview
+    treeview = ttk.Treeview(frame, columns=("ID Professor", "Nome Professor"), show='headings', yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+
+    # Definir os cabeçalhos das colunas
+    treeview.heading("ID Professor", text="ID Professor")
+    treeview.heading("Nome Professor", text="Nome Professor")
+    
+    vsb.config(command=treeview.yview)
+    hsb.config(command=treeview.xview)
+
+# Adicionar algumas linhas de dados
+    comandopesq= """SELECT * FROM professores"""
+    data = pesquisar(comandopesq)
+
+    for item in data:
+        treeview.insert("", "end", values=item)
+    
+    treeview.config(height=15)
+
+#Adicionar um binding para a seleção dos itens
+    treeview.bind("<<TreeviewSelect>>", on_item_selected)
+# adicionar a função de editar aqui para chamar nova tela e editar
+
+# Exibir o Treeview na janela
+    treeview.pack(fill="both", expand=True, padx=10, pady=10)
+    
+   # tk.Label(editarProfessores, text="Cadastrar Professores: ").grid(row=2, column=0)
+    #tk.Label(editarProfessores, text="Nome Professor").grid(row=3, column=0)
+   # nome = tk.Entry(editarProfessores)
+    #nome.grid(row=3, column=1)
+    tk.Button(root, text='Editar', command=editarProfessores).pack(pady=100)
+    tk.Button(root, text='Cadastrar', command=cadastrarProfessores).pack(pady=100)
+
+# Executar a interface gráfica
+    root.mainloop()
 
 # Função para cadastrar Alunos
 def cadastrarAluno():
@@ -354,11 +417,11 @@ def cadastrarAlunoTurma():
 principal = tk.Tk()
 principal.resizable(False, False)
 principal.title("Sistema Escola Shantala")
-principal.geometry('600x300')
+principal.geometry('800x600+10+10')
 tk.Button(principal, text='Alunos', command=cadastrarAluno).grid(row=1, column=0, sticky=tk.W, pady=4)
 tk.Button(principal, text='Cursos', command=cadstrarCurso).grid(row=1, column=1, sticky=tk.W, pady=4)
 tk.Button(principal, text='Turmas', command=cadastrarTurma).grid(row=1, column=2, sticky=tk.W, pady=4)
-tk.Button(principal, text='Professores', command=cadastrarProfessores).grid(row=1, column=3, sticky=tk.W, pady=4)
+tk.Button(principal, text='Professores', command=professores).grid(row=1, column=3, sticky=tk.W, pady=4)
 tk.Button(principal, text='Alunos na turma', command=cadastrarAlunoTurma).grid(row=1, column=4, sticky=tk.W, pady=4)
 tk.Button(principal, text='Sair', command=principal.quit).grid(row=1, column=5, sticky=tk.W, pady=4)
 
