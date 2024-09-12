@@ -1,7 +1,7 @@
 from turtle import right
 import psycopg2 as conector
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import pyautogui
 
 
@@ -83,32 +83,15 @@ def cadastrarProfessores():
     tk.Button(cadastrarprofessores, text='Sair', command=cadastrarprofessores.destroy).grid(row=5, column=1, sticky=tk.W, pady=4)
 
     cadastrarprofessores.mainloop()
-def editarProfessores():
-    print ("editando")
-
-def excluirProfessores():
-    print ("excluindo")
-
-def limparTela():
-    print ("limpando")
-
-def on_item_selected(event):
-    selected_item = treeview.selection()
-    if selected_item:
-        item = treeview.item(selected_item)
-        item_text = item['values']
-        print("Selecionado:", item_text)
 
 def professores():
     global treeview
+    global id_entry, nome_entry 
 
     root=tk.Tk()
     root.title("Pesquisa Professores")
 
     root.geometry("800x600")
-
-    #width = root.winfo_width()
-    #height = root.winfo_height()
 
     frame = tk.Frame(root)
     frame.pack(side="right", fill="y", expand=False, padx=10, pady=10)
@@ -147,17 +130,60 @@ def professores():
     nome_entry = tk.Entry(frame_controls)
     nome_entry.pack(pady=5)
 
-#Adicionar um binding para a seleção dos itens
+    def on_item_selected(event):
+        selected_item = treeview.selection()
+        if selected_item:
+            item = treeview.item(selected_item)
+            id_professor, nome_professor = item['values']
+
+            id_entry.delete(0, tk.END)
+            id_entry.insert(0, id_professor)
+        
+            nome_entry.delete(0, tk.END)
+            nome_entry.insert(0, nome_professor)
+    def editarProfessores():
+        selected_item = treeview.selection()
+        if not selected_item:
+            messagebox.showwarning("Nenhum item selecionado", "Selecione um item na tabela para editar.")
+            return
+        
+        id_professor = id_entry.get()
+        idProfessor = (id_professor, )
+        nome_professor = nome_entry.get()
+        nomeProfessor = (nome_professor, )
+        dados = (nome_professor ,id_professor ,)
+        
+        if not id_professor or not nome_professor:
+            messagebox.showwarning("Campos vazios", "Preencha todos os campos antes de editar.")
+            return
+
+        # Atualizar o item no Treeview
+        treeview.item(selected_item, values=(id_professor, nome_professor))
+        
+        conectarBanco()
+        cursor = conexao.cursor() 
+        comando = """UPDATE "professores" SET "nomeprofessor" = (%s) WHERE idProfessores = (%s)"""
+        cursor.execute(comando, dados)
+        conexao.commit()
+        count = cursor.rowcount
+        if count > 0:
+            messagebox.showinfo("Sucesso", "Dados do professor atualizados com sucesso!")
+
+    def limparTela():
+        id_entry.delete(0, tk.END)
+        nome_entry.delete(0, tk.END)
+        treeview.selection_remove(treeview.selection())
+
+    def excluirProfessores():
+        print ("excluindo")
+
     treeview.bind("<<TreeviewSelect>>", on_item_selected)
-# adicionar a função de editar aqui para chamar nova tela e editar
+
 
 # Exibir o Treeview na janela
     treeview.pack(fill="both", expand=True, padx=10, pady=10)
     
-   # tk.Label(editarProfessores, text="Cadastrar Professores: ").grid(row=2, column=0)
-    #tk.Label(editarProfessores, text="Nome Professor").grid(row=3, column=0)
-   # nome = tk.Entry(editarProfessores)
-    #nome.grid(row=3, column=1)
+  
     tk.Button(root, text='Editar', command=editarProfessores).pack(pady=5)
     tk.Button(root, text='Limpar Tela', command=limparTela).pack(pady=5)
     tk.Button(root, text='Cadastrar', command=cadastrarProfessores).pack(pady=5)
