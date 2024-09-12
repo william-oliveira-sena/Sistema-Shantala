@@ -130,17 +130,22 @@ def professores():
     nome_entry = tk.Entry(frame_controls)
     nome_entry.pack(pady=5)
 
+    selected_id = None 
+
     def on_item_selected(event):
+        global selected_id
         selected_item = treeview.selection()
         if selected_item:
             item = treeview.item(selected_item)
-            id_professor, nome_professor = item['values']
+            selected_id, nome_professor = item['values']
 
             id_entry.delete(0, tk.END)
-            id_entry.insert(0, id_professor)
+            id_entry.insert(0, selected_id)
         
             nome_entry.delete(0, tk.END)
             nome_entry.insert(0, nome_professor)
+           
+
     def editarProfessores():
         selected_item = treeview.selection()
         if not selected_item:
@@ -148,9 +153,7 @@ def professores():
             return
         
         id_professor = id_entry.get()
-        idProfessor = (id_professor, )
         nome_professor = nome_entry.get()
-        nomeProfessor = (nome_professor, )
         dados = (nome_professor ,id_professor ,)
         
         if not id_professor or not nome_professor:
@@ -175,8 +178,29 @@ def professores():
         treeview.selection_remove(treeview.selection())
 
     def excluirProfessores():
-        print ("excluindo")
+        global selected_id
 
+        if not selected_id:
+            messagebox.showwarning("Nenhum item selecionado")
+        confirm = messagebox.askyesno("Confirmar exclusão")
+        if confirm:
+            # Excluir do Treeview
+            for item in treeview.get_children():
+                if treeview.item(item)['values'][0] == selected_id:
+                    treeview.delete(item)
+                    break
+            dados = (selected_id, )
+            conectarBanco()
+            cursor = conexao.cursor() 
+            comando = """DELETE FROM "professores" WHERE idProfessores = (%s)"""
+            cursor.execute(comando, dados)
+            conexao.commit()
+            count = cursor.rowcount
+            if count > 0:
+                messagebox.showinfo("Sucesso", "Dados do professor atualizados com sucesso!")
+                limparTela()
+
+    
     treeview.bind("<<TreeviewSelect>>", on_item_selected)
 
 
