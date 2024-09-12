@@ -86,6 +86,12 @@ def cadastrarProfessores():
 def editarProfessores():
     print ("editando")
 
+def excluirProfessores():
+    print ("excluindo")
+
+def limparTela():
+    print ("limpando")
+
 def on_item_selected(event):
     selected_item = treeview.selection()
     if selected_item:
@@ -94,7 +100,6 @@ def on_item_selected(event):
         print("Selecionado:", item_text)
 
 def professores():
-      #tk.Button(editarprofessor, text='Editar', command=editarprofessor.destroy).grid(row=14, column=1, sticky=tk.W, pady=4)
     global treeview
 
     root=tk.Tk()
@@ -102,11 +107,11 @@ def professores():
 
     root.geometry("800x600")
 
-    width = root.winfo_width()
-    height = root.winfo_height()
+    #width = root.winfo_width()
+    #height = root.winfo_height()
 
     frame = tk.Frame(root)
-    frame.pack(side="right", fill="both", expand=True)
+    frame.pack(side="right", fill="y", expand=False, padx=10, pady=10)
 
     vsb = tk.Scrollbar(frame, orient="vertical")
     vsb.pack(side='right', fill='y')
@@ -131,7 +136,16 @@ def professores():
     for item in data:
         treeview.insert("", "end", values=item)
     
-    treeview.config(height=15)
+    frame_controls = tk.Frame(root)
+    frame_controls.pack(side="right", fill="y", padx=10, pady=10)
+
+    tk.Label(frame_controls, text="ID Professor").pack(pady=5)
+    id_entry = tk.Entry(frame_controls)
+    id_entry.pack(pady=5)
+
+    tk.Label(frame_controls, text="Nome Professor").pack(pady=5)
+    nome_entry = tk.Entry(frame_controls)
+    nome_entry.pack(pady=5)
 
 #Adicionar um binding para a seleção dos itens
     treeview.bind("<<TreeviewSelect>>", on_item_selected)
@@ -144,8 +158,10 @@ def professores():
     #tk.Label(editarProfessores, text="Nome Professor").grid(row=3, column=0)
    # nome = tk.Entry(editarProfessores)
     #nome.grid(row=3, column=1)
-    tk.Button(root, text='Editar', command=editarProfessores).pack(pady=100)
-    tk.Button(root, text='Cadastrar', command=cadastrarProfessores).pack(pady=100)
+    tk.Button(root, text='Editar', command=editarProfessores).pack(pady=5)
+    tk.Button(root, text='Limpar Tela', command=limparTela).pack(pady=5)
+    tk.Button(root, text='Cadastrar', command=cadastrarProfessores).pack(pady=5)
+    tk.Button(root, text='Excluir', command=excluirProfessores).pack(pady=5)
 
 # Executar a interface gráfica
     root.mainloop()
