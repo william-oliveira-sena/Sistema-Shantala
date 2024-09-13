@@ -55,7 +55,7 @@ def cadastrarProfessores():
     cadastrarprofessores = tk.Tk()
     cadastrarprofessores.resizable(False, False)
     cadastrarprofessores.title("Sistema Escola Shantala")
-    cadastrarprofessores.geometry('600x300')
+    cadastrarprofessores.geometry('400x200')
     tk.Label(cadastrarprofessores, text="Cadastrar Professores: ").grid(row=2, column=0)
     tk.Label(cadastrarprofessores, text="Nome Professor").grid(row=3, column=0)
     nome = tk.Entry(cadastrarprofessores)
@@ -197,7 +197,7 @@ def professores():
             conexao.commit()
             count = cursor.rowcount
             if count > 0:
-                messagebox.showinfo("Sucesso", "Dados do professor atualizados com sucesso!")
+                messagebox.showinfo("Sucesso", "Dados do professor excluidos com sucesso!")
                 limparTela()
 
     
@@ -285,6 +285,252 @@ def cadastrarAluno():
     tk.Button(cadastrarAluno, text='Sair', command=cadastrarAluno.destroy).grid(row=14, column=1, sticky=tk.W, pady=4)
 
     cadastrarAluno.mainloop()
+
+    #pesquisa edita e deleta alunos
+
+def alunos():
+    global treeview
+    global id_entry, nome_entry 
+
+    root=tk.Tk()
+    root.title("Pesquisa Alunos")
+
+    root.geometry("800x600")
+
+    frame = tk.Frame(root)
+    frame.pack(side="bottom", fill="y", expand=False, padx=10, pady=10)
+
+    frame_principal = tk.Frame(root)
+    frame_principal.pack(padx=10, pady=10, fill='both', expand=True)
+
+    # Frame para a primeira coluna
+    frame_coluna1 = tk.Frame(frame_principal)
+    frame_coluna1.pack(side='left', padx=5, pady=5, fill='y')
+
+    # Frame para a segunda coluna
+    frame_coluna2 = tk.Frame(frame_principal)
+    frame_coluna2.pack(side='left', padx=5, pady=5, fill='y')
+
+    frame_coluna3 = tk.Frame(frame_principal)
+    frame_coluna3.pack(side='left', padx=5, pady=5, fill='y')
+    
+    frame_coluna4 = tk.Frame(frame_principal)
+    frame_coluna4.pack(side='left', padx=5, pady=5, fill='y')
+    
+    frame_coluna5 = tk.Frame(frame_principal)
+    frame_coluna5.pack(side='left', padx=5, pady=5, fill='y')
+
+    vsb = tk.Scrollbar(frame, orient="vertical")
+    vsb.pack(side='right', fill='y')
+
+    hsb = tk.Scrollbar(frame, orient="horizontal")
+    hsb.pack(side='bottom', fill='x')
+
+    # Criação do Treeview
+    treeview = ttk.Treeview(frame, columns=("ID Aluno", "Nome Aluno","Endereço","Número","Complemento","Bairro", "Telefone","Data Nascimento","CPF", "RG", "Cadastro Único"), show='headings', yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+
+    # Definir os cabeçalhos das colunas
+    treeview.heading("ID Aluno", text="ID Aluno")
+    treeview.heading("Nome Aluno", text="Nome Aluno")
+    treeview.heading("Endereço", text="Endereço")
+    treeview.heading("Número", text="Número")
+    treeview.heading("Complemento", text="Complemento")
+    treeview.heading("Bairro", text="Bairro")
+    treeview.heading("Telefone", text="Telefone")
+    treeview.heading("Data Nascimento", text="Data Nascimento")
+    treeview.heading("CPF", text="CPF")
+    treeview.heading("RG", text="RG")
+    treeview.heading("Cadastro Único", text="Cadastro Único")
+    
+    vsb.config(command=treeview.yview)
+    hsb.config(command=treeview.xview)
+
+# Adicionar algumas linhas de dados
+    comandopesq= """SELECT * FROM alunos"""
+    data = pesquisar(comandopesq)
+
+    for item in data:
+        treeview.insert("", "end", values=item)
+    
+    frame_controls = tk.Frame(root)
+    frame_controls.pack(side="left", fill="y", padx=10, pady=10)
+
+    tk.Label(frame_coluna1, text="ID Aluno").pack(anchor='w', pady=5)
+    id_entry = tk.Entry(frame_coluna2)
+    id_entry.pack(fill='x',pady=5)
+
+    tk.Label(frame_coluna1, text="Nome Aluno").pack(anchor='w',pady=5)
+    nome_entry = tk.Entry(frame_coluna2)
+    nome_entry.pack(fill='x', pady=5)
+
+    tk.Label(frame_coluna1, text="Endereço").pack(anchor='w',pady=5)
+    endereco_entry = tk.Entry(frame_coluna2)
+    endereco_entry.pack(fill='x', pady=5)
+
+    tk.Label(frame_coluna1, text="Número").pack(anchor='w',pady=5)
+    numero_entry = tk.Entry(frame_coluna2)
+    numero_entry.pack(fill='x', pady=5)
+
+    tk.Label(frame_coluna1, text="Complemento").pack(anchor='w',pady=5)
+    complemento_entry = tk.Entry(frame_coluna2)
+    complemento_entry.pack(fill='x', pady=5)
+
+    tk.Label(frame_coluna1, text="Bairro").pack(anchor='w',pady=5)
+    bairro_entry = tk.Entry(frame_coluna2)
+    bairro_entry.pack(fill='x', pady=5)
+
+    tk.Label(frame_coluna3, text="Telefone").pack(anchor='w',pady=5)
+    telefone_entry = tk.Entry(frame_coluna4)
+    telefone_entry.pack(fill='x', pady=5)
+
+    tk.Label(frame_coluna3, text="Data Nascimento").pack(anchor='w',pady=5)
+    dataNascimento_entry = tk.Entry(frame_coluna4)
+    dataNascimento_entry.pack(fill='x', pady=5)
+
+    tk.Label(frame_coluna3, text="CPF").pack(anchor='w',pady=5)
+    cpf_entry = tk.Entry(frame_coluna4)
+    cpf_entry.pack(fill='x', pady=5)
+
+    tk.Label(frame_coluna3, text="RG").pack(anchor='w',pady=5)
+    rg_entry = tk.Entry(frame_coluna4)
+    rg_entry.pack(fill='x', pady=5)
+
+    tk.Label(frame_coluna3, text="Cadastro Único").pack(anchor='w',pady=5)
+    cu_entry = tk.Entry(frame_coluna4)
+    cu_entry.pack(fill='x', pady=5)
+
+    selected_id = None 
+
+    def on_item_selected(event):
+        global selected_id
+        selected_item = treeview.selection()
+        if selected_item:
+            item = treeview.item(selected_item)
+            selected_id, nome_aluno, endereco, numero, complemento, bairro, telefone, datanascimento, cpf, rg,cu = item['values']
+
+            id_entry.delete(0, tk.END)
+            id_entry.insert(0, selected_id)
+        
+            nome_entry.delete(0, tk.END)
+            nome_entry.insert(0, nome_aluno)
+
+            endereco_entry.delete(0, tk.END)
+            endereco_entry.insert(0, endereco)
+
+            numero_entry.delete(0, tk.END)
+            numero_entry.insert(0, numero)
+
+            complemento_entry.delete(0, tk.END)
+            complemento_entry.insert(0, complemento)
+
+            bairro_entry.delete(0, tk.END)
+            bairro_entry.insert(0, bairro)
+
+            telefone_entry.delete(0, tk.END)
+            telefone_entry.insert(0, telefone)
+
+            dataNascimento_entry.delete(0, tk.END)
+            dataNascimento_entry.insert(0, datanascimento)
+
+            cpf_entry.delete(0, tk.END)
+            cpf_entry.insert(0, cpf)
+
+            rg_entry.delete(0, tk.END)
+            rg_entry.insert(0, rg)
+
+            cu_entry.delete(0, tk.END)
+            cu_entry.insert(0, cu)
+            
+
+    def editarAlunos():
+        selected_item = treeview.selection()
+        if not selected_item:
+            messagebox.showwarning("Nenhum item selecionado", "Selecione um item na tabela para editar.")
+            return
+        
+        id_aluno = id_entry.get()
+        nome_aluno = nome_entry.get()
+        endereco = endereco_entry.get()
+        numero = numero_entry.get()
+        complemento = complemento_entry.get()
+        bairro = bairro_entry.get()
+        telefone = telefone_entry.get()
+        datanascimento = dataNascimento_entry.get()
+        cpf = cpf_entry.get()
+        rg = rg_entry.get()
+        cu = cu_entry.get()
+
+        dados = (nome_aluno, endereco, numero, complemento, bairro, telefone, datanascimento, cpf, rg, cu ,id_aluno ,)
+        
+        if not id_aluno or not nome_aluno:
+            messagebox.showwarning("Campos vazios", "Preencha todos os campos antes de editar.")
+            return
+
+        # Atualizar o item no Treeview
+        treeview.item(selected_item, values=(id_aluno, nome_aluno, endereco, numero, complemento, bairro, telefone, datanascimento, cpf, rg, cu))
+        
+        conectarBanco()
+        cursor = conexao.cursor() 
+        comando = """UPDATE "alunos" SET "nomealuno" = (%s), "endereco" = (%s), "numero" = (%s), "complemento" = (%s), "bairro" = (%s), "telefone" = (%s), "datanascimento" = (%s), "cpf" = (%s), "rg" = (%s), "cu" =(%s)  WHERE idaluno = (%s)"""
+        cursor.execute(comando, dados)
+        conexao.commit()
+        count = cursor.rowcount
+        if count > 0:
+            messagebox.showinfo("Sucesso", "Dados do aluno atualizados com sucesso!")
+
+    def limparTela():
+        id_entry.delete(0, tk.END)
+        nome_entry.delete(0, tk.END)
+        endereco_entry.delete(0, tk.END)
+        numero_entry.delete(0, tk.END)
+        complemento_entry.delete(0, tk.END)
+        bairro_entry.delete(0, tk.END)
+        telefone_entry.delete(0, tk.END)
+        dataNascimento_entry.delete(0, tk.END)
+        cpf_entry.delete(0, tk.END)
+        rg_entry.delete(0, tk.END)
+        cu_entry.delete(0, tk.END)
+
+        treeview.selection_remove(treeview.selection())
+
+    def excluirAluno():
+        global selected_id
+
+        if not selected_id:
+            messagebox.showwarning("Nenhum item selecionado")
+        confirm = messagebox.askyesno("Confirmar exclusão")
+        if confirm:
+            # Excluir do Treeview
+            for item in treeview.get_children():
+                if treeview.item(item)['values'][0] == selected_id:
+                    treeview.delete(item)
+                    break
+            dados = (selected_id, )
+            conectarBanco()
+            cursor = conexao.cursor() 
+            comando = """DELETE FROM "alunos" WHERE idaluno = (%s)"""
+            cursor.execute(comando, dados)
+            conexao.commit()
+            count = cursor.rowcount
+            if count > 0:
+                messagebox.showinfo("Sucesso", "Dados do Aluno excluidos com sucesso!")
+                limparTela()
+
+    
+    treeview.bind("<<TreeviewSelect>>", on_item_selected)
+
+
+# Exibir o Treeview na janela
+    treeview.pack(fill="both", expand=True, padx=10, pady=10)
+    
+  
+    tk.Button(frame_coluna5, text='Editar', command=editarAlunos).pack(pady=5)
+    tk.Button(frame_coluna5, text='Limpar Tela', command=limparTela).pack(pady=5)
+    tk.Button(frame_coluna5, text='Cadastrar', command=cadastrarAluno).pack(pady=5)
+    tk.Button(frame_coluna5, text='Excluir', command=excluirAluno).pack(pady=5)
+
+# Executar a interface gráfica
+    root.mainloop()
 
 # Função para cadastrar Turmas
 def cadastrarTurma():
@@ -484,7 +730,7 @@ principal = tk.Tk()
 principal.resizable(False, False)
 principal.title("Sistema Escola Shantala")
 principal.geometry('800x600+10+10')
-tk.Button(principal, text='Alunos', command=cadastrarAluno).grid(row=1, column=0, sticky=tk.W, pady=4)
+tk.Button(principal, text='Alunos', command=alunos).grid(row=1, column=0, sticky=tk.W, pady=4)
 tk.Button(principal, text='Cursos', command=cadstrarCurso).grid(row=1, column=1, sticky=tk.W, pady=4)
 tk.Button(principal, text='Turmas', command=cadastrarTurma).grid(row=1, column=2, sticky=tk.W, pady=4)
 tk.Button(principal, text='Professores', command=professores).grid(row=1, column=3, sticky=tk.W, pady=4)
