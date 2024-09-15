@@ -631,6 +631,194 @@ def cadastrarTurma():
 
     cadastrarTurmas.mainloop()
 
+    #pesquisar turmma
+def turmas():
+    global treeview
+    global id_entry, nome_entry 
+
+    root=tk.Tk()
+    root.title("Pesquisa Turmas")
+
+    root.geometry("800x600")
+
+    frame = tk.Frame(root)
+    frame.pack(side="bottom", fill="y", expand=False, padx=10, pady=10)
+
+    frame_principal = tk.Frame(root)
+    frame_principal.pack(padx=10, pady=10, fill='both', expand=True)
+
+    # Frame para a primeira coluna
+    frame_coluna1 = tk.Frame(frame_principal)
+    frame_coluna1.pack(side='left', padx=5, pady=5, fill='y')
+
+    # Frame para a segunda coluna
+    frame_coluna2 = tk.Frame(frame_principal)
+    frame_coluna2.pack(side='left', padx=5, pady=5, fill='y')
+
+    frame_coluna3 = tk.Frame(frame_principal)
+    frame_coluna3.pack(side='left', padx=5, pady=5, fill='y')
+    
+    frame_coluna4 = tk.Frame(frame_principal)
+    frame_coluna4.pack(side='left', padx=5, pady=5, fill='y')
+    
+    frame_coluna5 = tk.Frame(frame_principal)
+    frame_coluna5.pack(side='left', padx=5, pady=5, fill='y')
+
+    vsb = tk.Scrollbar(frame, orient="vertical")
+    vsb.pack(side='right', fill='y')
+
+    hsb = tk.Scrollbar(frame, orient="horizontal")
+    hsb.pack(side='bottom', fill='x')
+
+    # Criação do Treeview
+    treeview = ttk.Treeview(frame, columns=("ID Aluno", "Nome Curso","Nome Professor","Nome Dias","Data inicio"), show='headings', yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+
+    # Definir os cabeçalhos das colunas
+    treeview.heading("ID Aluno", text="ID Aluno")
+    treeview.heading("Nome Curso", text="Nome Curso")
+    treeview.heading("Nome Professor", text="Nome Professor")   
+    treeview.heading("Nome Dias", text="Nome Dias")
+    treeview.heading("Data inicio", text="Data Inicio")
+    
+    
+    vsb.config(command=treeview.yview)
+    hsb.config(command=treeview.xview)
+
+# Adicionar algumas linhas de dados
+    comandopesq= """SELECT * FROM turmas"""
+    
+    data = pesquisar(comandopesq)
+
+    for item in data:
+        treeview.insert("", "end", values=item)
+    
+    frame_controls = tk.Frame(root)
+    frame_controls.pack(side="left", fill="y", padx=10, pady=10)
+
+    tk.Label(frame_coluna1, text="ID Turma").pack(anchor='w', pady=5)
+    idturma_entry = tk.Entry(frame_coluna2)
+    idturma_entry.pack(fill='x',pady=5)
+
+    tk.Label(frame_coluna1, text="Curso").pack(anchor='w',pady=5)
+    idcurso_entry = tk.Entry(frame_coluna2)
+    idcurso_entry.pack(fill='x', pady=5)
+
+    tk.Label(frame_coluna1, text="Professor").pack(anchor='w',pady=5)
+    idprofessor_entry = tk.Entry(frame_coluna2)
+    idprofessor_entry.pack(fill='x', pady=5)
+
+    tk.Label(frame_coluna1, text="idfrequencia").pack(anchor='w',pady=5)
+    idfrequencia_entry = tk.Entry(frame_coluna2)
+    idfrequencia_entry.pack(fill='x', pady=5)
+
+    tk.Label(frame_coluna1, text="datainicio").pack(anchor='w',pady=5)
+    datainicio_entry = tk.Entry(frame_coluna2)
+    datainicio_entry.pack(fill='x', pady=5)
+
+    
+    selected_id = None 
+
+    def on_item_selected(event):
+        global selected_id
+        selected_item = treeview.selection()
+        if selected_item:
+            item = treeview.item(selected_item)
+            selected_id, curso, professores, frequencia, datainicio = item['values']
+
+            idturma_entry.delete(0, tk.END)
+            idturma_entry.insert(0, selected_id)
+        
+            idcurso_entry.delete(0, tk.END)
+            idcurso_entry.insert(0, curso)
+
+            idprofessor_entry.delete(0, tk.END)
+            idprofessor_entry.insert(0, professores)
+
+            idfrequencia_entry.delete(0, tk.END)
+            idfrequencia_entry.insert(0, frequencia)
+
+            datainicio_entry.delete(0, tk.END)
+            datainicio_entry.insert(0, datainicio)           
+
+    def editarTurma():
+        selected_item = treeview.selection()
+        if not selected_item:
+            messagebox.showwarning("Nenhum item selecionado", "Selecione um item na tabela para editar.")
+            return
+        
+        id_turma = idturma_entry.get()
+        idcurso = idcurso_entry.get()
+        idprofessor = idprofessor_entry.get()
+        idfrequencia = idfrequencia_entry.get()
+        datainicio = datainicio_entry.get()
+        
+
+        dados = (idcurso, idprofessor, idfrequencia, datainicio, id_turma ,)
+        
+        if not id_turma:
+            messagebox.showwarning("Campos vazios", "Preencha todos os campos antes de editar.")
+            return
+        dados = (selected_id, )
+        # Atualizar o item no Treeview
+        treeview.item(selected_item, values=(id_turma, idcurso, idprofessor, idfrequencia, datainicio))
+        
+        conectarBanco()
+        cursor = conexao.cursor() 
+        comando = """UPDATE "turmas" SET "idcurso" = (%s), "idprofessor" = (%s), "idfrequencia" = (%s), "datainicio" = (%s)  WHERE idturmas = (%s)"""
+        cursor.execute(comando, dados)
+        conexao.commit()
+        count = cursor.rowcount
+        if count > 0:
+            messagebox.showinfo("Sucesso", "Dados da Turma atualizados com sucesso!")
+
+    def limparTela():
+        idturma_entry.delete(0, tk.END)
+        idcurso_entry.delete(0, tk.END)
+        idprofessor_entry.delete(0, tk.END)
+        idfrequencia_entry.delete(0, tk.END)
+        datainicio_entry.delete(0, tk.END)
+       
+        treeview.selection_remove(treeview.selection())
+
+    def excluirTurma():
+        global selected_id
+
+        if not selected_id:
+            messagebox.showwarning("Nenhum item selecionado")
+        confirm = messagebox.askyesno("Confirmar exclusão")
+        if confirm:
+            # Excluir do Treeview
+            for item in treeview.get_children():
+                if treeview.item(item)['values'][0] == selected_id:
+                    treeview.delete(item)
+                    break
+            dados = (selected_id, )
+            print (selected_id)
+            conectarBanco()
+            cursor = conexao.cursor() 
+            comando = """DELETE FROM "turmas" WHERE idturmas = (%s)"""
+            cursor.execute(comando, dados)
+            conexao.commit()
+            count = cursor.rowcount
+            if count > 0:
+                messagebox.showinfo("Sucesso", "Dados da Turma excluidos com sucesso!")
+                limparTela()
+    
+    treeview.bind("<<TreeviewSelect>>", on_item_selected)
+
+
+# Exibir o Treeview na janela
+    treeview.pack(fill="both", expand=True, padx=10, pady=10)
+    
+  
+    tk.Button(frame_coluna5, text='Editar', command=editarTurma).pack(pady=5)
+    tk.Button(frame_coluna5, text='Limpar Tela', command=limparTela).pack(pady=5)
+    tk.Button(frame_coluna5, text='Cadastrar', command=cadastrarTurma).pack(pady=5)
+    tk.Button(frame_coluna5, text='Excluir', command=excluirTurma).pack(pady=5)
+
+# Executar a interface gráfica
+    root.mainloop()
+
 # Função para cadastrar Cursos
 def cadstrarCurso():
     cadstrarCurso = tk.Tk()
@@ -666,6 +854,148 @@ def cadstrarCurso():
     tk.Button(cadstrarCurso, text='Sair', command=cadstrarCurso.destroy).grid(row=6, column=1, sticky=tk.W, pady=4)
 
     cadstrarCurso.mainloop()
+
+def cursos():
+    global treeview
+    global id_entry, nome_entry 
+
+    root=tk.Tk()
+    root.title("Pesquisa Professores")
+
+    root.geometry("800x600")
+
+    frame = tk.Frame(root)
+    frame.pack(side="bottom", fill="x", expand=False, padx=10, pady=10)
+
+    vsb = tk.Scrollbar(frame, orient="vertical")
+    vsb.pack(side='right', fill='y')
+
+    hsb = tk.Scrollbar(frame, orient="horizontal")
+    hsb.pack(side='bottom', fill='x')
+
+    # Criação do Treeview
+    treeview = ttk.Treeview(frame, columns=("ID Curso", "Nome Curso", "Duração"), show='headings', yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+
+    # Definir os cabeçalhos das colunas
+    treeview.heading("ID Curso", text="ID Curso")
+    treeview.heading("Nome Curso", text="Nome Curso")
+    treeview.heading("Duração", text="Duração")
+    
+    vsb.config(command=treeview.yview)
+    hsb.config(command=treeview.xview)
+
+# Adicionar algumas linhas de dados
+    comandopesq= """SELECT * FROM cursos"""
+    data = pesquisar(comandopesq)
+
+    for item in data:
+        treeview.insert("", "end", values=item)
+    
+    frame_controls = tk.Frame(root)
+    frame_controls.pack(side="left", fill="y", padx=10, pady=10)
+
+    tk.Label(frame_controls, text="ID Curso").pack(pady=5)
+    id_entry = tk.Entry(frame_controls)
+    id_entry.pack(pady=5)
+
+    tk.Label(frame_controls, text="Nome Curso").pack(pady=5)
+    nome_entry = tk.Entry(frame_controls)
+    nome_entry.pack(pady=5)
+
+    tk.Label(frame_controls, text="Duração").pack(pady=5)
+    duracao_entry = tk.Entry(frame_controls)
+    duracao_entry.pack(pady=5)
+
+    selected_id = None 
+
+    def on_item_selected(event):
+        global selected_id
+        selected_item = treeview.selection()
+        if selected_item:
+            item = treeview.item(selected_item)
+            selected_id, nome_curso, duracao = item['values']
+
+            id_entry.delete(0, tk.END)
+            id_entry.insert(0, selected_id)
+        
+            nome_entry.delete(0, tk.END)
+            nome_entry.insert(0, nome_curso)
+
+            duracao_entry.delete(0, tk.END)
+            duracao_entry.insert(0, duracao)
+           
+
+    def editarCursos():
+        selected_item = treeview.selection()
+        if not selected_item:
+            messagebox.showwarning("Nenhum item selecionado", "Selecione um item na tabela para editar.")
+            return
+        
+        id_curso = id_entry.get()
+        nome_curso = nome_entry.get()
+        duracaodocurso = duracao_entry.get()
+        dados = (nome_curso ,duracaodocurso ,id_curso ,)
+        
+        if not id_curso or not nome_curso:
+            messagebox.showwarning("Campos vazios", "Preencha todos os campos antes de editar.")
+            return
+
+        # Atualizar o item no Treeview
+        treeview.item(selected_item, values=(id_curso, nome_curso, duracaodocurso))
+        
+        conectarBanco()
+        cursor = conexao.cursor() 
+        comando = """UPDATE "cursos" SET "nomecurso" = (%s), "duracao" = (%s) WHERE idcurso = (%s)"""
+        cursor.execute(comando, dados)
+        conexao.commit()
+        count = cursor.rowcount
+        if count > 0:
+            messagebox.showinfo("Sucesso", "Dados do Curso atualizados com sucesso!")
+
+    def limparTela():
+        id_entry.delete(0, tk.END)
+        nome_entry.delete(0, tk.END)
+        duracao_entry.delete(0, tk.END)
+        treeview.selection_remove(treeview.selection())
+
+    def excluirCurso():
+        global selected_id
+
+        if not selected_id:
+            messagebox.showwarning("Nenhum item selecionado")
+        confirm = messagebox.askyesno("Confirmar exclusão")
+        if confirm:
+            # Excluir do Treeview
+            for item in treeview.get_children():
+                if treeview.item(item)['values'][0] == selected_id:
+                    treeview.delete(item)
+                    break
+            dados = (selected_id, )
+            conectarBanco()
+            cursor = conexao.cursor() 
+            comando = """DELETE FROM "cursos" WHERE idcurso = (%s)"""
+            cursor.execute(comando, dados)
+            conexao.commit()
+            count = cursor.rowcount
+            if count > 0:
+                messagebox.showinfo("Sucesso", "Dados do curso excluidos com sucesso!")
+                limparTela()
+
+    
+    treeview.bind("<<TreeviewSelect>>", on_item_selected)
+
+
+# Exibir o Treeview na janela
+    treeview.pack(fill="both", expand=True, padx=10, pady=10)
+    
+  
+    tk.Button(root, text='Editar', command=editarCursos).pack(pady=5)
+    tk.Button(root, text='Limpar Tela', command=limparTela).pack(pady=5)
+    tk.Button(root, text='Cadastrar', command=cadstrarCurso).pack(pady=5)
+    tk.Button(root, text='Excluir', command=excluirCurso).pack(pady=5)
+
+# Executar a interface gráfica
+    root.mainloop()
 
 # Função para cadastrar Aluno em Turma
 def cadastrarAlunoTurma():
@@ -731,8 +1061,8 @@ principal.resizable(False, False)
 principal.title("Sistema Escola Shantala")
 principal.geometry('800x600+10+10')
 tk.Button(principal, text='Alunos', command=alunos).grid(row=1, column=0, sticky=tk.W, pady=4)
-tk.Button(principal, text='Cursos', command=cadstrarCurso).grid(row=1, column=1, sticky=tk.W, pady=4)
-tk.Button(principal, text='Turmas', command=cadastrarTurma).grid(row=1, column=2, sticky=tk.W, pady=4)
+tk.Button(principal, text='Cursos', command=cursos).grid(row=1, column=1, sticky=tk.W, pady=4)
+tk.Button(principal, text='Turmas', command=turmas).grid(row=1, column=2, sticky=tk.W, pady=4)
 tk.Button(principal, text='Professores', command=professores).grid(row=1, column=3, sticky=tk.W, pady=4)
 tk.Button(principal, text='Alunos na turma', command=cadastrarAlunoTurma).grid(row=1, column=4, sticky=tk.W, pady=4)
 tk.Button(principal, text='Sair', command=principal.quit).grid(row=1, column=5, sticky=tk.W, pady=4)
