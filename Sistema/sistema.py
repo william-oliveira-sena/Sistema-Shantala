@@ -1018,9 +1018,7 @@ def cadastrarAlunoTurma():
     escolheAlunoTurma = ttk.Combobox(cadastrarAlunoTurma, width=27, textvariable=naluno)
     escolheAlunoTurma['values'] = alunos
     escolheAlunoTurma.grid(column=1, row=4)
-    escolheAlunoTurma.current()
-
-    
+    escolheAlunoTurma.current()    
 
     def cadastraralunoturma():              
         conectarBanco()
@@ -1028,9 +1026,11 @@ def cadastrarAlunoTurma():
         idturma = idTurma.get()
         nomealuno = escolheAlunoTurma.get()
         nomea = (nomealuno,)
+        
          # Pesquisando IDs
         comandopesquisaidaluno = """SELECT idaluno FROM alunos WHERE nomealuno LIKE %s"""
         resultAluno = pesquisarid(comandopesquisaidaluno, nomea)
+        
         if len(resultAluno) == 0:
             alertamsg="Aluno não encontrado"
             msg(alertamsg)
@@ -1055,6 +1055,148 @@ def cadastrarAlunoTurma():
 
     cadastrarAlunoTurma.mainloop()
 
+def alunoTurma():
+    global treeview
+    global id_entry, idturma_entry 
+
+    root=tk.Tk()
+    root.title("Pesquisa Alunos na Turma")
+
+    root.geometry("800x600")
+
+    frame = tk.Frame(root)
+    frame.pack(side="bottom", fill="x", expand=False, padx=10, pady=10)
+
+    vsb = tk.Scrollbar(frame, orient="vertical")
+    vsb.pack(side='right', fill='y')
+
+    hsb = tk.Scrollbar(frame, orient="horizontal")
+    hsb.pack(side='bottom', fill='x')
+
+    # Criação do Treeview
+    treeview = ttk.Treeview(frame, columns=("ID Aluno Turma", "ID Turma", "ID Aluno"), show='headings', yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+
+    # Definir os cabeçalhos das colunas
+    treeview.heading("ID Aluno Turma", text="ID Aluno Turma")
+    treeview.heading("ID Turma", text="ID Turma")
+    treeview.heading("ID Aluno", text="ID Aluno")
+    
+    
+    vsb.config(command=treeview.yview)
+    hsb.config(command=treeview.xview)
+
+# Adicionar algumas linhas de dados
+    comandopesq= """SELECT * FROM alunoturmas"""
+    data = pesquisar(comandopesq)
+
+    for item in data:
+        treeview.insert("", "end", values=item)
+    
+    frame_controls = tk.Frame(root)
+    frame_controls.pack(side="left", fill="y", padx=10, pady=10)
+
+    tk.Label(frame_controls, text="ID Aluno Turma").pack(pady=5)
+    id_entry = tk.Entry(frame_controls)
+    id_entry.pack(pady=5)
+
+    tk.Label(frame_controls, text="ID Turma").pack(pady=5)
+    idturma_entry = tk.Entry(frame_controls)
+    idturma_entry.pack(pady=5)
+
+    tk.Label(frame_controls, text="ID Aluno").pack(pady=5)
+    idaluno_entry = tk.Entry(frame_controls)
+    idaluno_entry.pack(pady=5)
+
+    selected_id = None 
+
+    def on_item_selected(event):
+        global selected_id
+        selected_item = treeview.selection()
+        if selected_item:
+            item = treeview.item(selected_item)
+            selected_id, idturma, idaluno  = item['values']
+
+            id_entry.delete(0, tk.END)
+            id_entry.insert(0, selected_id)
+        
+            idturma_entry.delete(0, tk.END)
+            idturma_entry.insert(0, idturma)
+
+            idaluno_entry.delete(0, tk.END)
+            idaluno_entry.insert(0, idaluno)                
+
+    def editarAlunoTurma():
+        selected_item = treeview.selection()
+        if not selected_item:
+            messagebox.showwarning("Nenhum item selecionado", "Selecione um item na tabela para editar.")
+            return
+        
+        id_alunoTurma = id_entry.get()
+        idturma = idturma_entry.get()
+        idaluno = idaluno_entry.get()
+        dados = (idturma ,idaluno ,id_alunoTurma ,)
+        
+        if not id_alunoTurma:
+            messagebox.showwarning("Campos vazios", "Preencha todos os campos antes de editar.")
+            return
+
+        # Atualizar o item no Treeview
+        treeview.item(selected_item, values=(id_alunoTurma, idturma, idaluno))
+        
+        conectarBanco()
+        cursor = conexao.cursor() 
+        comando = """UPDATE "alunoturmas" SET "idturma" = (%s), "idaluno" = (%s) WHERE idalunoturma = (%s)"""
+        cursor.execute(comando, dados)
+        conexao.commit()
+        count = cursor.rowcount
+        if count > 0:
+            messagebox.showinfo("Sucesso", "Dados do Aluno na Turma atualizados com sucesso!")
+
+    def limparTela():
+        id_entry.delete(0, tk.END)
+        idturma_entry.delete(0, tk.END)
+        idaluno_entry.delete(0, tk.END)
+        treeview.selection_remove(treeview.selection())
+
+    def excluirAlunoTurma():
+        global selected_id
+
+        if not selected_id:
+            messagebox.showwarning("Nenhum item selecionado")
+        confirm = messagebox.askyesno("Confirmar exclusão")
+        if confirm:
+            # Excluir do Treeview
+            for item in treeview.get_children():
+                if treeview.item(item)['values'][0] == selected_id:
+                    treeview.delete(item)
+                    break
+            dados = (selected_id, )
+            conectarBanco()
+            cursor = conexao.cursor() 
+            comando = """DELETE FROM "alunoturma" WHERE idalunoturma = (%s)"""
+            cursor.execute(comando, dados)
+            conexao.commit()
+            count = cursor.rowcount
+            if count > 0:
+                messagebox.showinfo("Sucesso", "Dados do curso excluidos com sucesso!")
+                limparTela()
+
+    
+    treeview.bind("<<TreeviewSelect>>", on_item_selected)
+
+
+# Exibir o Treeview na janela
+    treeview.pack(fill="both", expand=True, padx=10, pady=10)
+    
+  
+    tk.Button(root, text='Editar', command=editarAlunoTurma).pack(pady=5)
+    tk.Button(root, text='Limpar Tela', command=limparTela).pack(pady=5)
+    tk.Button(root, text='Cadastrar', command=cadastrarAlunoTurma).pack(pady=5)
+    tk.Button(root, text='Excluir', command=excluirAlunoTurma).pack(pady=5)
+
+# Executar a interface gráfica
+    root.mainloop()
+
 # Menu Principal
 principal = tk.Tk()
 principal.resizable(False, False)
@@ -1064,7 +1206,7 @@ tk.Button(principal, text='Alunos', command=alunos).grid(row=1, column=0, sticky
 tk.Button(principal, text='Cursos', command=cursos).grid(row=1, column=1, sticky=tk.W, pady=4)
 tk.Button(principal, text='Turmas', command=turmas).grid(row=1, column=2, sticky=tk.W, pady=4)
 tk.Button(principal, text='Professores', command=professores).grid(row=1, column=3, sticky=tk.W, pady=4)
-tk.Button(principal, text='Alunos na turma', command=cadastrarAlunoTurma).grid(row=1, column=4, sticky=tk.W, pady=4)
+tk.Button(principal, text='Alunos na turma', command=alunoTurma).grid(row=1, column=4, sticky=tk.W, pady=4)
 tk.Button(principal, text='Sair', command=principal.quit).grid(row=1, column=5, sticky=tk.W, pady=4)
 
 principal.mainloop()
